@@ -1,20 +1,20 @@
-# Use Node.js official image
-FROM node:18
-
-# Create app directory
+# Stage 1 - Build dependencies
+FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy package.json and package-lock.json first
+# Install only dependencies
 COPY package*.json ./
+RUN npm install --production
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the project
+# Copy the rest of the app
 COPY . .
 
-# Expose port 3000
-EXPOSE 3000
+# Stage 2 - Run app
+FROM node:18-alpine
+WORKDIR /app
 
-# Start the app
+# Copy only necessary files from builder
+COPY --from=builder /app /app
+
+EXPOSE 3000
 CMD ["npm", "run", "dev"]
