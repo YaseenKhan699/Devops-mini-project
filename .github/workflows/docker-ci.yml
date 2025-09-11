@@ -2,7 +2,7 @@ name: Docker CI
 
 on:
   push:
-    branches: ["master"]   # 👈 change to "master" if your branch is master
+    branches: ["master"]   # change to "main" if your branch is main
 
 jobs:
   build:
@@ -21,8 +21,45 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/todo-app:${{ github.sha }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/todo-app:${{ github.sha }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/todo-app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build   # run after build
+    services:
+      db:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: example
+          MYSQL_DATABASE: tododb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pexample"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          push: true
-          tags: yaseenkhan699/todo-app:latest
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Run App Container for Testing
+        run: |
+          docker run -d -p 3000:3000 --name todo-app-test \
+            -e MYSQL_HOST=db \
+            -e MYSQL_USER=root \
+            -e MYSQL_PASSWORD=example \
+            -e MYSQL_DATABASE=tododb \
+            --network host \
+            ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+          sleep 15
+          curl -f http://localhost:3000 || exit 1
