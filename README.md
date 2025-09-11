@@ -98,4 +98,54 @@ Screenshot – MySQL Query Output
 5. Tested persistence:
 Tasks stayed even after restarting containers (thanks to volumes).
 
+---
+
+Devops-mini-project-Day-4
+🚀 To-Do App (CI/CD with GitHub Actions & Docker)
+Project Overview
+
+This project extends the To-Do app with CI/CD automation using GitHub Actions.
+The pipeline builds the Docker image, runs integration tests with MySQL, and pushes the image to Docker Hub:
+👉 yaseenkhan699/todo-app
+
+Steps I Practiced
+
+Created .github/workflows/docker-ci.yml for CI/CD
+
+Added GitHub Secrets: DOCKER_USERNAME & DOCKER_PASSWORD
+
+Built and pushed Docker image automatically on every push to master
+
+Ran integration tests inside CI:
+
+Started MySQL container
+
+Connected app container to MySQL using Docker network
+
+Verified app container started and logs showed successful DB connection
+
+Fixed issues:
+
+Initial workflow failed due to missing secrets → added both secrets correctly
+
+App container couldn’t connect via localhost → used Docker network for CI containers
+
+Verified workflow success → image built, tested, and pushed to Docker Hub
+
+Confirmed local container runs correctly on port 3000
+
+Screenshots
+1. Workflow File
+/Users/applemacbookm1/Desktop/Screenshot 2025-09-11 at 4.00.30 PM.png
+
+2. GitHub Actions Build & Test Success
+
+
+/Users/applemacbookm1/Desktop/Screenshot 2025-09-11 at 4.00.46 PM.pngess
+
+3. Docker Hub Image
+
+
+/Users/applemacbookm1/Desktop/Screenshot 2025-09-11 at 4.01.05 PM.png
+
 
