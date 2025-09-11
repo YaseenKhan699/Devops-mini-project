@@ -2,12 +2,12 @@ name: Docker CI
 
 on:
   push:
-    branches: ["master"]   # change to "main" if your branch is main
+    branches: ["master"]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker Image
+      - name: Build and push Docker image (sha + latest)
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/todo-app:${{ github.sha }} .
           docker push ${{ secrets.DOCKER_USERNAME }}/todo-app:${{ github.sha }}
@@ -29,22 +29,8 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
 
   test:
+    needs: build
     runs-on: ubuntu-latest
-    needs: build   # run after build
-    services:
-      db:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: example
-          MYSQL_DATABASE: tododb
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -pexample"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -52,14 +38,46 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Run App Container for Testing
+      - name: Create test network
+        run: docker network create test-net || true
+
+      - name: Start MySQL on test-net
         run: |
-          docker run -d -p 3000:3000 --name todo-app-test \
-            -e MYSQL_HOST=db \
+          docker run -d --name test-mysql --network test-net \
+            -e MYSQL_ROOT_PASSWORD=example \
+            -e MYSQL_DATABASE=tododb \
+            mysql:8.0
+          # wait for mysql to be ready (30s max)
+          for i in $(seq 1 30); do
+            docker exec test-mysql mysqladmin ping -pexample >/dev/null 2>&1 && echo "MySQL ready" && break
+            echo "Waiting for MySQL..."
+            sleep 1
+          done
+
+      - name: Pull image and run app on same network
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+          docker run -d --name todo-app-test --network test-net \
+            -e MYSQL_HOST=test-mysql \
             -e MYSQL_USER=root \
             -e MYSQL_PASSWORD=example \
             -e MYSQL_DATABASE=tododb \
-            --network host \
             ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
-          sleep 15
-          curl -f http://localhost:3000 || exit 1
+
+      - name: Wait for app and test endpoint (tries 30 times)
+        run: |
+          for i in $(seq 1 30); do
+            echo "Trying curl inside container (attempt $i)..."
+            docker exec todo-app-test curl -sf http://localhost:3000 && echo "App responded!" && exit 0
+            echo "Not ready yet; dumping last 50 lines of logs"
+            docker logs todo-app-test --tail 50 || true
+            sleep 2
+          done
+          echo "App did not respond in time" && docker logs todo-app-test --tail 200 || true
+          exit 1
+
+      - name: Cleanup test containers
+        if: always()
+        run: |
+          docker rm -f todo-app-test test-mysql || true
+          docker network rm test-net || true
