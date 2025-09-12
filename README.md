@@ -149,3 +149,76 @@ Screenshots
 /Users/applemacbookm1/Desktop/Screenshot 2025-09-11 at 4.01.05 PM.png
 
 
+---
+
+DevOps-mini-project-Day-5
+🚀 To-Do App (Deployed on AWS EC2)
+Project Overview
+
+This is a simple To-Do web app containerized with Docker and deployed on an AWS EC2 instance.
+The app is accessible externally:
+👉 http://3.232.56.132:3000
+
+Steps I Practiced
+
+Launched EC2 Instance
+
+Ubuntu 22.04, t2.micro (Free tier)
+
+Allowed inbound ports: 22 (SSH), 3000 (App), 3306 (MySQL)
+
+SSH into EC2
+
+ssh -i your-key.pem ec2-user@3.232.56.132
+
+
+Installed Docker & Docker Compose
+
+sudo apt update -y
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+docker --version
+docker-compose --version
+
+
+Cloned Project Repo
+
+git clone https://github.com/YaseenKhan699/Devops-mini-project.git
+cd Devops-mini-project
+
+
+Ran Docker Containers on EC2
+
+sudo docker-compose up -d
+sudo docker ps
+
+
+Ensured ports are mapped: 0.0.0.0:3000->3000/tcp
+
+Verified App is Running
+
+Checked container logs and server binding (0.0.0.0)
+
+Accessed app via browser: http://3.232.56.132:3000
+
+Screenshots on left
+1. Running Containers on EC2
+/Users/applemacbookm1/Desktop/Screenshot 2025-09-12 at 6.22.21 PM.png
+
+2. Todo-App in Browser on Right
+/Users/applemacbookm1/Desktop/Screenshot 2025-09-12 at 6.22.21 PM.png
+
+Run the App Yourself on EC2
+git clone https://github.com/YaseenKhan699/Devops-mini-project.git
+cd Devops-mini-project
+sudo docker-compose up -d
+
+
+Then open your EC2 public IP + port 3000 in a browser:
+
+http://<EC2_PUBLIC_IP>:3000
