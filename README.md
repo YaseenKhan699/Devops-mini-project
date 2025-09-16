@@ -222,3 +222,26 @@ sudo docker-compose up -d
 Then open your EC2 public IP + port 3000 in a browser:
 
 http://<EC2_PUBLIC_IP>:3000
+---
+DevOps Journey – Day 6
+
+Life threw me a curveball as I recently had an accident 🤕, but I’m not letting it stop my learning path.
+
+Alongside my DevOps mini-project, I’ve now started diving into Kubernetes and Rancher. I’m following a structured YouTube series while practicing hands-on to strengthen my understanding.
+
+So far, I’ve learned about the Kubernetes architecture:
+
+Master Node Components: API Server, etcd, Scheduler, Controller Manager, Cloud Controller Manager.
+
+Worker Node Components: Kubelet, Kube Proxy, Container Runtime.
+
+I also discovered the difference between a Node and a Pod:
+
+Node = a worker machine that runs workloads.
+
+Pod = the smallest deployable unit that hosts one or more containers.
+
+Excited to keep building step by step and share more progress soon! 🌟
+
+#DevOps #Kubernetes #Rancher #LearningInPublic![WhatsApp Image 2025-09-16 at 2 19 31 PM](https://github.com/user-attachments/assets/ab44218a-127c-4121-abaf-787a1009e1c2)
+
