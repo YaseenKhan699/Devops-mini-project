@@ -222,3 +222,92 @@ sudo docker-compose up -d
 Then open your EC2 public IP + port 3000 in a browser:
 
 http://<EC2_PUBLIC_IP>:3000
+
+---
+
+# 🚀 DevOps Journey – Day 6
+
+Life threw me a curveball as I recently had an accident 🤕, but I’m not letting it stop my learning path.  
+
+Alongside my DevOps mini-project, I’ve now started diving into **Kubernetes** and **Rancher**.  
+I’m following a structured YouTube series while practicing hands-on to strengthen my understanding.  
+
+## 📌 Learnings from Day 6
+### Kubernetes Architecture
+- **Master Node Components:** API Server, etcd, Scheduler, Controller Manager, Cloud Controller Manager  
+- **Worker Node Components:** Kubelet, Kube Proxy, Container Runtime  
+
+### Node vs Pod
+- **Node:** A worker machine that runs workloads  
+- **Pod:** The smallest deployable unit that hosts one or more containers  
+
+
+---
+
+🌟 Excited to keep building step by step and share more progress soon!
+
+---
+
+🚀 Day 7 – Kubernetes with Minikube
+📌 Overview
+
+On Day 7 of my DevOps learning journey, I explored the basics of Kubernetes using Minikube.
+I deployed an nginx pod, verified it with kubectl, and tested it using curl inside Minikube.
+
+🛠️ Steps Performed
+
+Start Minikube
+
+minikube start
+
+
+Create a Pod YAML file (nginx-pood.yaml)
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+
+
+Apply the Pod manifest
+
+kubectl apply -f nginx-pod.yaml
+
+
+Verify Pod status
+
+kubectl get pods -o wide
+
+
+Test with curl inside Minikube
+
+minikube ssh
+curl <Pod-IP>
+
+
+Result → Successfully viewed the nginx welcome page 🎉
+
+📸 Screenshot
+/Users/applemacbookm1/Desktop/Screenshot 2025-09-25 at 4.34.05 PM.png
+
+One screenshot showing:
+
+Pod creation
+
+Pod verification
+
+Successful curl test
+
+🧠 Key Learning
+
+How to write a simple Pod manifest in Kubernetes.
+
+How kubectl helps in managing and verifying workloads.
+
+Basics of testing applications inside Minikube before cloud deployment
